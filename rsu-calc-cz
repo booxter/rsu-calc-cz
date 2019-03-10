@@ -55,42 +55,59 @@ def get_vesting_events(filename):
             yield VestingEvent(row)
 
 
-to_pay_CZ = Decimal(0)
-to_pay_US = Decimal(0)
+def usd_to_str(v):
+    return "%.2f" % v
+
+
+print("YEAR: %d" % tax_year)
+
+total_to_pay_CZ = Decimal(0)
+total_to_pay_US = Decimal(0)
 usd_values = []
 
 for event in get_vesting_events(inputfile):
     days_in_CZ = (last_day_in_CZ - event.granted_date).days + 1
     days_in_US = (event.vested_date - last_day_in_CZ).days + 1
     total_days = (event.vested_date - event.granted_date).days
-    to_pay_CZ += event.usd_value * days_in_CZ / total_days
-    to_pay_US += event.usd_value * days_in_US / total_days
-    usd_values.append(event.usd_value)
+    to_pay_CZ = event.usd_value * days_in_CZ / total_days
+    to_pay_US = event.usd_value * days_in_US / total_days
+    total_to_pay_CZ += to_pay_CZ
+    total_to_pay_US += to_pay_US
+    usd_values.append((event.usd_value, to_pay_CZ, to_pay_US))
 
-print("YEAR: %d" % tax_year)
-print("Grants: %s" % " + ".join([str(v) for v in usd_values]))
 
-print("Total value, USD:", sum(usd_values))
-print("To pay, US: %.2f" % to_pay_US)
-print("To pay, CZ: %.2f" % to_pay_CZ)
+print("Grants: %s" % " + ".join([usd_to_str(v[0]) for v in usd_values]))
+print("Total value, USD:", sum([v[0] for v in usd_values]))
+print("Of those, to pay to CZ: %s" % " + ".join([usd_to_str(v[1]) for v in usd_values]))
+print("Of those, to pay to US: %s" % " + ".join([usd_to_str(v[2]) for v in usd_values]))
+
+print("To pay, CZ: %.2f" % total_to_pay_CZ)
+print("To pay, US: %.2f" % total_to_pay_US)
 
 rate = exchange_rates[tax_year]
 print("Exchange rate, CZ:", rate)
 
-to_pay_in_CZK = to_pay_CZ * rate
-print("To pay, CZ (in CZK): %.2f" % to_pay_in_CZK)
+res = total_to_pay_CZ
+res *= rate
+print(
+    "To pay, CZ (in CZK): %.2f * %.2f = %.2f" %
+    (total_to_pay_CZ, rate, res))
 
-to_pay_in_CZK = round(to_pay_in_CZK)
-print("Supergross income:", to_pay_in_CZK)
+res = round(res)
+print("Supergross income:", res)
 
-to_pay_in_CZK = math.floor(to_pay_in_CZK / 100) * 100
-print("Tax base rounded:", to_pay_in_CZK)
+res = math.floor(res / 100) * 100
+print("Tax base rounded:", res)
 
-to_pay_in_CZK *= tax_rate
-print("Tax per paragraph 16:", to_pay_in_CZK)
+print(
+    "Tax per paragraph 16 = %.2f * %.2f = %.2f" %
+    (res, tax_rate, res * tax_rate))
+res *= tax_rate
 
-to_pay_in_CZK -= tax_payer_deduction
-print("Tax after deduction:", to_pay_in_CZK)
+print(
+    "Tax after deduction = %.2f - %.2f = %.2f" %
+    (res, tax_payer_deduction, res - tax_payer_deduction))
+res -= tax_payer_deduction
 
-to_pay_in_USD = to_pay_in_CZK / rate
-print("Tax after deduction (in USD): %.2f" % to_pay_in_USD)
+res /= rate
+print("Tax after deduction (in USD, at %.2f rate): %.2f" % (rate, res))
