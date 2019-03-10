@@ -57,18 +57,20 @@ def get_vesting_events(filename):
 
 to_pay_CZ = Decimal(0)
 to_pay_US = Decimal(0)
-total_value = Decimal(0)
+usd_values = []
+
 for event in get_vesting_events(inputfile):
     days_in_CZ = (last_day_in_CZ - event.granted_date).days + 1
     days_in_US = (event.vested_date - last_day_in_CZ).days + 1
     total_days = (event.vested_date - event.granted_date).days
     to_pay_CZ += event.usd_value * days_in_CZ / total_days
     to_pay_US += event.usd_value * days_in_US / total_days
-    total_value += event.usd_value
+    usd_values.append(event.usd_value)
 
 print("YEAR: %d" % tax_year)
+print("Grants: %s" % " + ".join([str(v) for v in usd_values]))
 
-print("Total value, USD:", total_value)
+print("Total value, USD:", sum(usd_values))
 print("To pay, US: %.2f" % to_pay_US)
 print("To pay, CZ: %.2f" % to_pay_CZ)
 
