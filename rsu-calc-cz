@@ -10,8 +10,10 @@ if len(sys.argv) != 2:
     print("Format: %s <year>" % sys.argv[0])
     sys.exit(1)
 
-tax_year = int(sys.argv[1])
+# todo: this should be its own cli option
 last_day_in_CZ = datetime(year=2016, month=12, day=24)
+
+tax_year = int(sys.argv[1])
 inputfile = "grants%d.csv" % tax_year
 
 tax_rate = Decimal("0.15")
