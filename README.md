@@ -28,6 +28,10 @@ To use the calculator, just pass the tax year, and it will read from
 `./grants<year>.csv` file. You can check an example `grants.csv` file included
 with the calculator to figure out the intended input format.
 
+You should also modify `last_day_in_CZ` variable to point to the last day you
+were considered a tax resident of Czech Republic. (This is your last day in the
+country before you left.)
+
 ```bash
 $ ./rsu-calc-cz 2018
 ```
