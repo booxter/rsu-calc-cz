@@ -21,6 +21,7 @@ tax_payer_deduction = 24840
 exchange_rates = {
     2017: Decimal("23.18"),
     2018: Decimal("21.78"),
+    2019: Decimal("22.93"),
 }
 
 def string_to_date(s):
