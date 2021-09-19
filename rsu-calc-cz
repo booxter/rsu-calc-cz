@@ -22,6 +22,7 @@ exchange_rates = {
     2017: Decimal("23.18"),
     2018: Decimal("21.78"),
     2019: Decimal("22.93"),
+    2020: Decimal("23.14"),
 }
 
 def string_to_date(s):
